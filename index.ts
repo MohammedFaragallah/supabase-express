@@ -37,6 +37,7 @@ const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const NOVU_API_KEY = process.env.NOVU_API_KEY!;
 
 const novu = new Novu(NOVU_API_KEY);
+
 const supabase = createClient<Database>(
   SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY,
@@ -123,6 +124,23 @@ supabase
   .subscribe((status, error) => {
     logger.log({ error, status });
   });
+
+app.get("/", (req, res) => {
+  res.send(
+    JSON.stringify(
+      supabase.realtime
+        .getChannels()
+        .map(({ params, state, topic, subTopic }) => ({
+          params,
+          state,
+          topic,
+          subTopic,
+        })),
+      null,
+      2
+    )
+  );
+});
 
 app.listen(port, () => {
   console.log(`[server]: Server is running at http://localhost:${port}`);
