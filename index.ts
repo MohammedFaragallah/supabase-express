@@ -74,13 +74,10 @@ const handleStatusInserts = async (
 
     const subscriberId = reviewer?.[0]?.created_by;
 
-    if (
-      subscriberId &&
-      request_type &&
-      request_uuid &&
-      new_status &&
-      old_status
-    ) {
+    const validNotification =
+      subscriberId && request_type && request_uuid && new_status && old_status;
+
+    if (validNotification) {
       const response = await novu.trigger("request-status-change", {
         payload: {
           new_status,
