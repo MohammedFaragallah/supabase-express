@@ -1,11 +1,12 @@
-import { PushProviderIdEnum } from "@novu/node";
 import dotenv from "dotenv";
+
+dotenv.config();
+
+import { PushProviderIdEnum } from "@novu/node";
 import express, { Express, Request } from "express";
 import { novu } from "./services";
 
 import "./channels";
-
-dotenv.config();
 
 const app: Express = express();
 const port = process.env.PORT ?? 3000;
