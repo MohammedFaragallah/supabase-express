@@ -2,6 +2,7 @@ import { RealtimePostgresInsertPayload } from "@supabase/supabase-js";
 import { Tables } from "./supabase";
 import { logger, novu, supabase } from "./services";
 import { RequestStatuses } from "./types";
+import { PushProviderIdEnum } from "@novu/node";
 
 export const handleStatusInserts = async (
   new_status_payload: RealtimePostgresInsertPayload<Tables<"status_histories">>
@@ -37,6 +38,21 @@ export const handleStatusInserts = async (
       new_status?.length &&
       old_status?.length
     ) {
+      const {
+        data: { user },
+        error: getUserError,
+      } = await supabase.auth.admin.getUserById(subscriberId);
+
+      if (getUserError) {
+        logger.error(getUserError);
+      }
+
+      await novu.subscribers.setCredentials(
+        subscriberId,
+        PushProviderIdEnum.EXPO,
+        { deviceTokens: user?.user_metadata.device_token }
+      );
+
       const response = await novu.trigger("request-status-change", {
         payload: { new_status, old_status, request_type, request_uuid },
         to: { subscriberId },
